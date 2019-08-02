@@ -1,5 +1,5 @@
 /bazel-*
 /external-tools/
-/lemur_rsa
+/temp
 
 target/
