@@ -1,16 +1,21 @@
-workspace(name = "io_bazel_rules_twirl")
+workspace(name = "twirl_compiler_cli")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # rules_jvm_external
-rules_jvm_external_version = "2.1"
+rules_jvm_external_version = "2.5"
 http_archive(
     name = "rules_jvm_external",
-    sha256 = "515ee5265387b88e4547b34a57393d2bcb1101314bcc5360ec7a482792556f42",
+    sha256 = "249e8129914be6d987ca57754516be35a14ea866c616041ff0cd32ea94d2f3a1",
     strip_prefix = "rules_jvm_external-{}".format(rules_jvm_external_version),
     type = "zip",
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/{}.zip".format(rules_jvm_external_version),
 )
+
+load(":workspace.bzl", "twirl_compiler_cli_repositories")
+twirl_compiler_cli_repositories()
+load("@twirl_compiler_cli_maven//:defs.bzl", twirl_compiler_cli_pinned_maven_install = "pinned_maven_install")
+twirl_compiler_cli_pinned_maven_install()
 
 # higherkindness/rules_scala
 rules_scala_annex_version = "ac2101359ec810f9e129d47aa0306608035dacf2" # update this as needed
@@ -107,9 +112,6 @@ http_archive(
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
 
-load(":workspace.bzl", "twirl_repositories")
-twirl_repositories()
-
 # bazel-common
 bazelcommon_version = "0d4a76d35fe28caf5c887ff39bfd7374b993094b"
 http_archive(
@@ -122,3 +124,23 @@ http_archive(
 
 load("@bazel-common//:workspace_defs.bzl", "google_common_workspace_rules")
 google_common_workspace_rules()
+
+# rules_twirl (for tests)
+rules_twirl_version = "d2b33b3d4afa25c139912eff5b5f3e27cdc60e0c"
+http_archive(
+  name = "io_bazel_rules_twirl",
+  sha256 = "135a929891c253a8a3df6ea72cbf3ba0d951dd0586670aaab3c8a56b693984d6",
+  strip_prefix = "rules_twirl-{}".format(rules_twirl_version),
+  type = "zip",
+  url = "https://github.com/lucidsoftware/rules_twirl/archive/{}.zip".format(rules_twirl_version),
+)
+
+load("@io_bazel_rules_twirl//:workspace.bzl", "twirl_repositories")
+twirl_repositories()
+load("@twirl//:defs.bzl", twirl_pinned_maven_install = "pinned_maven_install")
+twirl_pinned_maven_install()
+
+load("@io_bazel_rules_twirl//:test_workspace.bzl", "twirl_test_repositories")
+twirl_test_repositories()
+load("@twirl_test//:defs.bzl", twirl_test_pinned_maven_install = "pinned_maven_install")
+twirl_test_pinned_maven_install()
