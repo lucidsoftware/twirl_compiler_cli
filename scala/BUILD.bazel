@@ -8,13 +8,13 @@ load(
 scala_version = "2.12.4"
 
 compiler_classpath = [
-    "@twirl//:org_scala_lang_scala_compiler",
-    "@twirl//:org_scala_lang_scala_library",
-    "@twirl//:org_scala_lang_scala_reflect",
+    "@twirl_compiler_cli_maven//:org_scala_lang_scala_compiler",
+    "@twirl_compiler_cli_maven//:org_scala_lang_scala_library",
+    "@twirl_compiler_cli_maven//:org_scala_lang_scala_reflect",
 ]
 
 runtime_classpath = [
-    "@twirl//:org_scala_lang_scala_library",
+    "@twirl_compiler_cli_maven//:org_scala_lang_scala_library",
 ]
 
 configure_bootstrap_scala(
@@ -33,8 +33,8 @@ scala_library(
     scala = ":bootstrap",
     visibility = ["//visibility:public"],
     deps = compiler_classpath + [
-        "@twirl//:org_scala_sbt_compiler_interface",
-        "@twirl//:org_scala_sbt_util_interface",
+        "@twirl_compiler_cli_maven//:org_scala_sbt_compiler_interface",
+        "@twirl_compiler_cli_maven//:org_scala_sbt_util_interface",
     ],
 )
 
