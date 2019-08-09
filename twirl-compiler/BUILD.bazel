@@ -22,11 +22,9 @@ scala_binary(
   ],
 )
 
-compiler_cli_version = VERSION
-
 pom_file(
   name = "pom",
   targets = [":twirl-compiler"],
   template_file = "pom.template.xml",
-  substitutions = {"VERSION": compiler_cli_version}
+  substitutions = {"VERSION": VERSION}
 )
