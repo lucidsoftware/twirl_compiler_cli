@@ -12,7 +12,7 @@ deploy_jar="bazel-out/k8-fastbuild/bin/twirl-compiler/twirl-compiler_deploy.jar"
 pom_file="bazel-out/k8-fastbuild/bin/twirl-compiler/pom.xml"
 
 artifactId="twirl-compiler-cli"
-version=$(cat twirl-compiler/BUILD.bazel | egrep "^version" | awk -F '"' '{print $2}')
+version=$(cat $(bazel info output_base)/external/compiler-cli-version/version.bzl | awk -F '"' '{print $2}')
 source_jar="temp/$artifactId-$version-sources.jar"
 javadoc_jar="temp/$artifactId-$version-javadoc.jar"
 
@@ -31,7 +31,7 @@ else
 fi
 
 # Deploy to maven
-echo "Deploying $deploy_jar to $url"
+echo "Deploying $artifactId-$version to $url"
 mvn -e --fail-at-end gpg:sign-and-deploy-file \
 	-Dfile="$deploy_jar" \
 	-DpomFile="$pom_file" \

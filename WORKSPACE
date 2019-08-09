@@ -125,6 +125,13 @@ http_archive(
 load("@bazel-common//:workspace_defs.bzl", "google_common_workspace_rules")
 google_common_workspace_rules()
 
+# Get the version to publish the compiler-cli with
+load("//:version_from_env.bzl", "version_from_env")
+version_from_env(
+  name = "compiler-cli-version",
+  env_var = "TRAVIS_TAG"
+)
+
 # rules_twirl (for tests)
 rules_twirl_version = "d2b33b3d4afa25c139912eff5b5f3e27cdc60e0c"
 http_archive(
