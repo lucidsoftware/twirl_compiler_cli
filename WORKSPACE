@@ -17,6 +17,11 @@ twirl_compiler_cli_repositories()
 load("@twirl_compiler_cli_maven//:defs.bzl", twirl_compiler_cli_pinned_maven_install = "pinned_maven_install")
 twirl_compiler_cli_pinned_maven_install()
 
+load("//:test_workspace.bzl", "twirl_compiler_cli_test_repositories")
+twirl_compiler_cli_test_repositories()
+load("@twirl_compiler_cli_test_maven//:defs.bzl", twirl_compiler_cli_test_pinned_maven_install = "pinned_maven_install")
+twirl_compiler_cli_test_pinned_maven_install()
+
 # higherkindness/rules_scala
 rules_scala_annex_version = "ac2101359ec810f9e129d47aa0306608035dacf2" # update this as needed
 http_archive(
@@ -155,8 +160,3 @@ load("@io_bazel_rules_twirl//:workspace.bzl", "twirl_repositories")
 twirl_repositories()
 load("@twirl//:defs.bzl", twirl_pinned_maven_install = "pinned_maven_install")
 twirl_pinned_maven_install()
-
-load("@io_bazel_rules_twirl//:test_workspace.bzl", "twirl_test_repositories")
-twirl_test_repositories()
-load("@twirl_test//:defs.bzl", twirl_test_pinned_maven_install = "pinned_maven_install")
-twirl_test_pinned_maven_install()
