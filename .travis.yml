@@ -1,5 +1,5 @@
 dist: trusty
-sudo: required
+sudo: false
 
 # Not technically required but suppresses 'Ruby' in Job status message.
 language: java
@@ -7,22 +7,23 @@ language: java
 git:
   depth: 1
 os:
-  - linux
+  - osx
 env:
-  - V=0.28.0
+  # TRAVIS_TAG should be set as "<artifactSuffix>--<version>"; otherwise publishing will abort
+  global:
+    - BAZEL=0.28.0
+    - COMPILER_CLI_ARTIFACT_ID="twirl-compiler-cli_$(awk -F '--' '{print $1}' <<< $TRAVIS_TAG)"
+    - COMPILER_CLI_VERSION="$(awk -F '--' '{print $2}' <<< $TRAVIS_TAG)"
 before_install:
   # Borrowed from rules_scala
   - |
-    sysctl kernel.unprivileged_userns_clone=1
-    sudo apt-get update -q
-    sudo apt-get install libxml2-utils -y
-    OS=linux
-    if [[ $V =~ .*rc[0-9]+.* ]]; then
-      PRE_RC=$(expr "$V" : '\([0-9.]*\)rc.*')
-      RC_PRC=$(expr "$V" : '[0-9.]*\(rc.*\)')
-      URL="https://storage.googleapis.com/bazel/${PRE_RC}/${RC_PRC}/bazel-${V}-installer-${OS}-x86_64.sh"
+    OS=darwin
+    if [[ $BAZEL =~ .*rc[0-9]+.* ]]; then
+      PRE_RC=$(expr "$BAZEL" : '\([0-9.]*\)rc.*')
+      RC_PRC=$(expr "$BAZEL" : '[0-9.]*\(rc.*\)')
+      URL="https://storage.googleapis.com/bazel/${PRE_RC}/${RC_PRC}/bazel-${BAZEL}-installer-${OS}-x86_64.sh"
     else
-      URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
+      URL="https://github.com/bazelbuild/bazel/releases/download/${BAZEL}/bazel-${BAZEL}-installer-${OS}-x86_64.sh"
     fi
     wget -nv -O install.sh "${URL}"
     chmod +x install.sh
@@ -35,7 +36,7 @@ after_success:
   - |
     if [ "$TRAVIS_SECURE_ENV_VARS" == true ] && [ -n "$TRAVIS_TAG" ]; then
       echo "$PGP_SECRET" | base64 --decode | gpg --import
-      bash scripts/publish.sh
+      ./scripts/publish.sh
     else
       echo "Skipped publishing."
       echo "Travis Tag: $TRAVIS_TAG"
