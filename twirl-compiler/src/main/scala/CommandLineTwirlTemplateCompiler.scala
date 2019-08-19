@@ -57,10 +57,7 @@ object CommandLineTwirlTemplateCompiler {
       source = config.source,
       sourceDirectory = config.sourceDirectory,
       formatterType = formatterType,
-      additionalImports = config
-        .additionalImports
-        .map(s => s"import $s".replace("%format%", extension))
-        .mkString("\n"),
+      additionalImports = config.additionalImports.map(_.replace("%format%", extension)),
       inclusiveDot = false,
       resultType = s"${formatterType}.Appendable"
     )
