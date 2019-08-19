@@ -41,6 +41,36 @@ load("@rules_scala_annex//rules/scala:workspace.bzl", "scala_register_toolchains
 scala_repositories()
 scala_register_toolchains()
 
+# Java 8 is needed for Scala 2.11; this is needed to enable that
+jdk_build_file_content = """
+filegroup(
+    name = "jdk",
+    srcs = glob(["**/*"]),
+    visibility = ["//visibility:public"],
+)
+filegroup(
+    name = "java",
+    srcs = ["bin/java"],
+    visibility = ["//visibility:public"],
+)
+"""
+
+http_archive(
+    name = "jdk8-linux",
+    build_file_content = jdk_build_file_content,
+    sha256 = "dd28d6d2cde2b931caf94ac2422a2ad082ea62f0beee3bf7057317c53093de93",
+    strip_prefix = "jdk8u212-b03",
+    url = "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jdk_x64_linux_hotspot_8u212b03.tar.gz",
+)
+
+http_archive(
+    name = "jdk8-osx",
+    build_file_content = jdk_build_file_content,
+    sha256 = "3d80857e1bb44bf4abe6d70ba3bb2aae412794d335abe46b26eb904ab6226fe0",
+    strip_prefix = "jdk8u212-b03/Contents/Home",
+    url = "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jdk_x64_mac_hotspot_8u212b03.tar.gz",
+)
+
 # Protobuf
 protobuf_version = "3.9.0"
 http_archive(

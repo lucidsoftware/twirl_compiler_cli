@@ -8,12 +8,12 @@ def twirl_compiler_cli_test_repositories():
     maven_install(
         name = "twirl_compiler_cli_test_maven",
         artifacts = [
-            "com.typesafe.play:twirl-api_2.12:1.2.1",
-            "org.specs2:specs2-common_2.12:3.9.5",
-            "org.specs2:specs2-core_2.12:3.9.5",
-            "org.specs2:specs2-matcher_2.12:3.9.5",
-            "org.scala-lang:scala-library:2.12.4",
-            "org.scala-lang:scala-reflect:2.12.4",
+            "com.typesafe.play:twirl-api_2.11:1.1.1",
+            "org.specs2:specs2-common_2.11:3.6.6",
+            "org.specs2:specs2-core_2.11:3.6.6",
+            "org.specs2:specs2-matcher_2.11:3.6.6",
+            "org.scala-lang:scala-library:2.11.12",
+            "org.scala-lang:scala-reflect:2.11.12",
         ],
         repositories = [
             "http://central.maven.org/maven2",

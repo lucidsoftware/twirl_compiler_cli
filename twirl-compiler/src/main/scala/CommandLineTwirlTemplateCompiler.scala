@@ -1,19 +1,18 @@
 package rulestwirl.twirl
 
-import higherkindness.rules_scala.common.worker.WorkerMain
 import play.twirl.compiler.TwirlCompiler
 import java.io.File
 import java.nio.file.{Files, Paths}
 import scala.collection.JavaConverters._
 
-object CommandLineTwirlTemplateCompiler extends WorkerMain[Unit] {
+object CommandLineTwirlTemplateCompiler {
 
   case class Config(
     additionalImports: Seq[String] = Seq.empty[String],
     source: File = new File("."),
     sourceDirectory: File = new File("."),
     templateFormats: Map[String, String] = Map.empty[String, String],
-    output: File = new File("."),
+    output: File = new File(".")
   )
 
   val parser = new scopt.OptionParser[Config]("scopt") {
@@ -40,9 +39,7 @@ object CommandLineTwirlTemplateCompiler extends WorkerMain[Unit] {
     }).keyValueName("format", "formatterType").text("additional template formats to use when compiling templates")
   }
 
-  override def init(args: Option[Array[String]]): Unit = ()
-
-  protected[this] def work(ctx: Unit, args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = {
     val finalArgs = args.flatMap {
       case arg if arg.startsWith("@") => Files.readAllLines(Paths.get(arg.tail)).asScala
       case arg => Array(arg)
@@ -60,7 +57,10 @@ object CommandLineTwirlTemplateCompiler extends WorkerMain[Unit] {
       source = config.source,
       sourceDirectory = config.sourceDirectory,
       formatterType = formatterType,
-      additionalImports = config.additionalImports.map(_.replace("%format%", extension)),
+      additionalImports = config
+        .additionalImports
+        .map(s => s"import $s".replace("%format%", extension))
+        .mkString("\n"),
       inclusiveDot = false,
       resultType = s"${formatterType}.Appendable"
     )
