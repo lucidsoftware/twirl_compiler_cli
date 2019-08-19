@@ -41,8 +41,9 @@ class TwirlCompilerTest extends Specification {
     "Add additional imports" in {
       import twirl.com.foo.views.txt.addImports
       val person = Person("Jim", 24)
-      val template = addImports.render(person)
-      template.body mustEqual s"${person.name}, age: ${person.age}"
+      val fruit = Fruit("grapes", "small")
+      val template = addImports.render(person, fruit)
+      template.body mustEqual s"${person.name}, who is ${person.age}, likes ${fruit.name}, which are ${fruit.size}"
     }
 
     "Set template formatters" in {

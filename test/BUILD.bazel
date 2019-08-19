@@ -23,7 +23,7 @@ twirl_templates(
   srcs = [
     "twirl-templates/twirl/com/foo/views/addImports.scala.txt",
   ],
-  additional_imports = ["rulestwirl.test.Person"],
+  additional_imports = ["rulestwirl.test.Person", "rulestwirl.test.Fruit"],
   twirl_compiler = "//twirl-compiler"
 )
 
@@ -46,6 +46,7 @@ scala_test(
   srcs = [
     "TwirlCompilerTest.scala",
     "Person.scala",
+    "Fruit.scala",
     "StrangeTxtFormatter.scala",
     ":twirl-test-templates-basic",
     ":twirl-test-templates-additional-imports",

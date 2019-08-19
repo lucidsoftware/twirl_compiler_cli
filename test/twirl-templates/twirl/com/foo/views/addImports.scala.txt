@@ -1,1 +1,1 @@
-@(person: Person)@person.name, age: @person.age
+@(person: Person, fruit: Fruit)@person.name, who is @person.age, likes @fruit.name, which are @fruit.size
