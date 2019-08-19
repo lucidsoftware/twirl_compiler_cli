@@ -8,7 +8,7 @@ def twirl_compiler_cli_test_repositories():
     maven_install(
         name = "twirl_compiler_cli_test_maven",
         artifacts = [
-            "com.typesafe.play:twirl-api_2.11:1.3.15",
+            "com.typesafe.play:twirl-api_2.11:1.4.2",
             "org.specs2:specs2-common_2.11:3.6.6",
             "org.specs2:specs2-core_2.11:3.6.6",
             "org.specs2:specs2-matcher_2.11:3.6.6",
