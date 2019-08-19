@@ -5,7 +5,7 @@ load(
     "scala_library",
 )
 
-scala_version = "2.12.4"
+scala_version = "2.12.8"
 
 compiler_classpath = [
     "@twirl_compiler_cli_maven//:org_scala_lang_scala_compiler",
