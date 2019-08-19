@@ -9,7 +9,7 @@ def twirl_compiler_cli_repositories():
         name = "twirl_compiler_cli_maven",
         artifacts = [
             "com.github.scopt:scopt_2.12:3.7.0",
-            "com.typesafe.play:twirl-compiler_2.12:1.3.15",
+            "com.typesafe.play:twirl-compiler_2.12:1.4.2",
             "org.scala-sbt:zinc_2.12:1.2.1",
             "org.scala-sbt:compiler-interface:1.2.1",
             "org.scala-sbt:util-interface:1.2.0",
