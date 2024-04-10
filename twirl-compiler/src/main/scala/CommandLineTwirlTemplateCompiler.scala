@@ -2,9 +2,11 @@ package rulestwirl.twirl
 
 import higherkindness.rules_scala.common.worker.WorkerMain
 import play.twirl.compiler.TwirlCompiler
-import java.io.File
+import java.io.{File, PrintStream}
 import java.nio.file.{Files, Paths}
 import scala.collection.JavaConverters._
+import scala.util.boundary, boundary.break
+import scopt.OParser
 
 object CommandLineTwirlTemplateCompiler extends WorkerMain[Unit] {
 
@@ -16,41 +18,35 @@ object CommandLineTwirlTemplateCompiler extends WorkerMain[Unit] {
     output: File = new File("."),
   )
 
-  val parser = new scopt.OptionParser[Config]("scopt") {
-    head("Twirl Template Compiler", "0.1")
+  val builder = OParser.builder[Config]
+  val parser = {
+    import builder._
+    OParser.sequence(
+      programName("twirl-compiler"),
+      head("Twirl Template Compiler", "0.2"),
+      arg[File]("<output>").required().action { (value, config) =>
+        config.copy(output = value)
+      }.text("output file"),
 
-    arg[File]("<output>").required().action { (value, config) =>
-      config.copy(output = value)
-    }.text("output file")
+      arg[File]("<sourceDirectory>").required().action { (value, config) =>
+        config.copy(sourceDirectory = value)
+      }.text("root source directory"),
 
-    arg[File]("<sourceDirectory>").required().action { (value, config) =>
-      config.copy(sourceDirectory = value)
-    }.text("root source directory")
+      arg[File]("<source>").unbounded().required().action { (value, config) =>
+        config.copy(source = value)
+      }.text("source file"),
 
-    arg[File]("<source>").unbounded().required().action { (value, config) =>
-      config.copy(source = value)
-    }.text("source file")
+      opt[String]('i', "additionalImport").valueName("<import>").unbounded().action { (value, config) =>
+        config.copy(additionalImports = config.additionalImports ++ Seq(value))
+      }.text("additional imports to add to the compiled templates"),
 
-    opt[String]('i', "additionalImport").valueName("<import>").unbounded().action { (value, config) =>
-      config.copy(additionalImports = config.additionalImports ++ Seq(value))
-    }.text("additional imports to add to the compiled templates")
-
-    opt[(String, String)]('t', "templateFormat").unbounded().action({ case ((key, value), config) =>
-      config.copy(templateFormats = config.templateFormats + (key -> value))
-    }).keyValueName("format", "formatterType").text("additional template formats to use when compiling templates")
+      opt[(String, String)]('t', "templateFormat").unbounded().action({ case ((key, value), config) =>
+        config.copy(templateFormats = config.templateFormats + (key -> value))
+      }).keyValueName("format", "formatterType").text("additional template formats to use when compiling templates"),
+    )
   }
 
-  override def init(args: Option[Array[String]]): Unit = ()
-
-  protected[this] def work(ctx: Unit, args: Array[String]): Unit = {
-    val finalArgs = args.flatMap {
-      case arg if arg.startsWith("@") => Files.readAllLines(Paths.get(arg.tail)).asScala
-      case arg => Array(arg)
-    }
-    val config = parser.parse(finalArgs, Config()).getOrElse {
-      return System.exit(3)
-    }
-
+  def compileTwirl(config: Config): Unit = {
     val templateFormats = defaultFormats ++ config.templateFormats
 
     val extension = config.source.getName.split('.').last
@@ -68,6 +64,19 @@ object CommandLineTwirlTemplateCompiler extends WorkerMain[Unit] {
     // TwirlCompiler.compileVirtual generates a footer comment that contains non-reproducible metatdata; remove it
     val sansMetadata = result.content.split("\n").span(s => !s.contains("-- GENERATED --"))._1.dropRight(1).mkString("\n")
     Files.write(config.output.toPath, sansMetadata.getBytes)
+  }
+
+  override def init(args: Option[Array[String]]): Unit = ()
+
+  protected def work(ctx: Unit, args: Array[String], out: PrintStream): Unit = {
+    val finalArgs = args.toList.flatMap {
+      case arg if arg.startsWith("@") => Files.readAllLines(Paths.get(arg.tail)).asScala
+      case arg => Array(arg)
+    }
+
+    OParser.parse(parser, finalArgs, Config()).map(compileTwirl).getOrElse {
+      System.exit(3)
+    }
   }
 
   def defaultFormats = Map(
