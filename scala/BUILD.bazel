@@ -2,48 +2,34 @@ load(
     "@rules_scala_annex//rules:scala.bzl",
     "configure_bootstrap_scala",
     "configure_zinc_scala",
-    "scala_library",
 )
-
-scala_version = "2.12.4"
+load("//:workspace.bzl", "scala3_version")
 
 compiler_classpath = [
-    "@twirl_compiler_cli_maven//:org_scala_lang_scala_compiler",
-    "@twirl_compiler_cli_maven//:org_scala_lang_scala_library",
-    "@twirl_compiler_cli_maven//:org_scala_lang_scala_reflect",
+    "@twirl_compiler_cli_maven//:org_scala_lang_scala3_compiler_3",
+    "@twirl_compiler_cli_maven//:org_scala_lang_scala3_library_3",
 ]
 
 runtime_classpath = [
-    "@twirl_compiler_cli_maven//:org_scala_lang_scala_library",
+    "@twirl_compiler_cli_maven//:org_scala_lang_scala3_library_3",
+    "@twirl_compiler_cli_maven//:org_scala_lang_scala3_interfaces",
+    "@twirl_compiler_cli_maven//:org_scala_lang_tasty_core_3",
 ]
 
 configure_bootstrap_scala(
     name = "bootstrap",
     compiler_classpath = compiler_classpath,
     runtime_classpath = runtime_classpath,
-    version = scala_version,
+    version = scala3_version,
     visibility = ["//visibility:public"],
-)
-
-scala_library(
-    name = "compiler_bridge",
-    srcs = [
-        "@compiler_bridge_2_12//:src",
-    ],
-    scala = ":bootstrap",
-    visibility = ["//visibility:public"],
-    deps = compiler_classpath + [
-        "@twirl_compiler_cli_maven//:org_scala_sbt_compiler_interface",
-        "@twirl_compiler_cli_maven//:org_scala_sbt_util_interface",
-    ],
 )
 
 configure_zinc_scala(
     name = "zinc",
-    compiler_bridge = ":compiler_bridge",
+    compiler_bridge = "@twirl_compiler_cli_maven//:org_scala_lang_scala3_sbt_bridge",
     compiler_classpath = compiler_classpath,
     runtime_classpath = runtime_classpath,
-    version = scala_version,
+    version = scala3_version,
     visibility = ["//visibility:public"],
 )
 

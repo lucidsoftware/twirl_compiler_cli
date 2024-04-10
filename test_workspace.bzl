@@ -3,21 +3,24 @@ Load test 3rd party maven dependencies
 """
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
+load(":workspace.bzl", "scala3_version", "twirl_version")
+
+specs2_version = "5.5.1"
 
 def twirl_compiler_cli_test_repositories():
     maven_install(
         name = "twirl_compiler_cli_test_maven",
         artifacts = [
-            "com.typesafe.play:twirl-api_2.12:1.2.1",
-            "org.specs2:specs2-common_2.12:3.9.5",
-            "org.specs2:specs2-core_2.12:3.9.5",
-            "org.specs2:specs2-matcher_2.12:3.9.5",
-            "org.scala-lang:scala-library:2.12.4",
-            "org.scala-lang:scala-reflect:2.12.4",
+            "org.playframework.twirl:twirl-api_3:{}".format(twirl_version),
+            "org.specs2:specs2-common_3:{}".format(specs2_version),
+            "org.specs2:specs2-core_3:{}".format(specs2_version),
+            "org.specs2:specs2-matcher_3:{}".format(specs2_version),
+            "org.scala-lang:scala3-library_3:{}".format(scala3_version),
         ],
         repositories = [
-            "http://central.maven.org/maven2",
+            "https://repo.maven.apache.org/maven2",
         ],
         fetch_sources = True,
+        fail_if_repin_required = True,
         maven_install_json = "//:twirl_compiler_cli_test_maven_install.json",
     )

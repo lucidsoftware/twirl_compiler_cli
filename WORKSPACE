@@ -3,30 +3,52 @@ workspace(name = "twirl_compiler_cli")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # rules_jvm_external
-rules_jvm_external_version = "2.5"
+rules_jvm_external_version = "6.0"
+
 http_archive(
     name = "rules_jvm_external",
-    sha256 = "249e8129914be6d987ca57754516be35a14ea866c616041ff0cd32ea94d2f3a1",
+    sha256 = "c44568854d8bb92fe0f7dd6b1e8957ae65e45e32a058727fcf62aaafbd36f17b",
     strip_prefix = "rules_jvm_external-{}".format(rules_jvm_external_version),
     type = "zip",
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/{}.zip".format(rules_jvm_external_version),
 )
 
-load(":workspace.bzl", "twirl_compiler_cli_repositories")
+load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
+
+rules_jvm_external_deps()
+
+load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
+
+rules_jvm_external_setup()
+
+load("//:workspace.bzl", "twirl_compiler_cli_repositories")
+
 twirl_compiler_cli_repositories()
-load("@twirl_compiler_cli_maven//:defs.bzl", twirl_compiler_cli_pinned_maven_install = "pinned_maven_install")
+
+load(
+    "@twirl_compiler_cli_maven//:defs.bzl",
+    twirl_compiler_cli_pinned_maven_install = "pinned_maven_install",
+)
+
 twirl_compiler_cli_pinned_maven_install()
 
 load("//:test_workspace.bzl", "twirl_compiler_cli_test_repositories")
+
 twirl_compiler_cli_test_repositories()
-load("@twirl_compiler_cli_test_maven//:defs.bzl", twirl_compiler_cli_test_pinned_maven_install = "pinned_maven_install")
+
+load(
+    "@twirl_compiler_cli_test_maven//:defs.bzl",
+    twirl_compiler_cli_test_pinned_maven_install = "pinned_maven_install",
+)
+
 twirl_compiler_cli_test_pinned_maven_install()
 
 # higherkindness/rules_scala
-rules_scala_annex_version = "ac2101359ec810f9e129d47aa0306608035dacf2" # update this as needed
+rules_scala_annex_version = "5df571de1c0803736c8e1846fa7a0faa3e21d6c6"
+
 http_archive(
     name = "rules_scala_annex",
-    sha256 = "5803bbc490570a188ba0183ce2a3ca2b5d1e1078466945ec0d75427b29f74aac",
+    sha256 = "47b700e458de2478428348408b403cccfc93cd2c2b47499275b790d514ad9bd2",
     strip_prefix = "rules_scala-{}".format(rules_scala_annex_version),
     type = "zip",
     url = "https://github.com/higherkindness/rules_scala/archive/{}.zip".format(rules_scala_annex_version),
@@ -37,126 +59,156 @@ bind(
     actual = "//scala:default_scala",
 )
 
-load("@rules_scala_annex//rules/scala:workspace.bzl", "scala_register_toolchains", "scala_repositories")
+load(
+    "@rules_scala_annex//rules/scala:workspace.bzl",
+    "scala_register_toolchains",
+    "scala_repositories",
+)
+load(
+    "@rules_scala_annex//rules/scala:workspace_3.bzl",
+    "scala_3_repositories",
+)
+
 scala_repositories()
+
+load("@annex//:defs.bzl", annex_pinned_maven_install = "pinned_maven_install")
+
+annex_pinned_maven_install()
+
 scala_register_toolchains()
 
+scala_3_repositories()
+
+load("@annex_3//:defs.bzl", annex_3_pinned_maven_install = "pinned_maven_install")
+
+annex_3_pinned_maven_install()
+
 # Skylib
-skylib_version = "0.9.0"  # update this as needed
+skylib_version = "1.5.0"  # update this as needed
+
 http_archive(
     name = "bazel_skylib",
-    sha256 = "a8677c64e2a58eb113f305784e6af9759cfa3f9a6eacb4d40531fe1bd6356aca",
+    sha256 = "19a99bc16079c8853f96d50e627afa158aa00bf52460f45f923466105ff8fe13",
     strip_prefix = "bazel-skylib-{}".format(skylib_version),
     type = "zip",
     url = "https://github.com/bazelbuild/bazel-skylib/archive/{}.zip".format(skylib_version),
 )
 
-# To use the JavaScript version of Sass, we need to first install nodejs
-rules_nodejs_version = "84882ba224f51f85d589e9cd45b30758cfdbf006"
+graknlabs_bazel_distribution_version = "ebb4660cff37574876d37bf7c498bd735155554f"
+
 http_archive(
-    name = "build_bazel_rules_nodejs",
-    sha256 = "8662ffdaedbee7b85d4aadbbe8005a65cceea128bb0d07aa892998e3683caea2",
-    strip_prefix = "rules_nodejs-{}".format(rules_nodejs_version),
+    name = "graknlabs_bazel_distribution",
+    sha256 = "c3181786d2544a7df54bcf326d5e40e6ec0b86dbc6c42e58d40f8c2c2225859f",
+    strip_prefix = "bazel-distribution-{}".format(graknlabs_bazel_distribution_version),
     type = "zip",
-    url = "https://github.com/bazelbuild/rules_nodejs/archive/{}.zip".format(rules_nodejs_version),
+    url = "https://github.com/graknlabs/bazel-distribution/archive/{}.zip".format(graknlabs_bazel_distribution_version),
 )
-load("@build_bazel_rules_nodejs//:package.bzl", "rules_nodejs_dependencies")
-rules_nodejs_dependencies()
 
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories")
-node_repositories(package_json = [])
-
-# rules_sass
-rules_sass_version = "8b61ad6953fde55031658e1731c335220f881369" # update this as needed
+# For buildifier (for linting)
 http_archive(
-    name = "io_bazel_rules_sass",
-    sha256 = "afb08f0ae0060c1dbdd11d22578972d087e5463e647ce35dfc2b6c2a41682da8",
-    strip_prefix = "rules_sass-{}".format(rules_sass_version),
-    type = "zip",
-    url = "https://github.com/bazelbuild/rules_sass/archive/{}.zip".format(rules_sass_version),
+    name = "io_bazel_rules_go",
+    sha256 = "2c6388e97cb4fb30546d65e983c45bb422bfe32c6e946af329cd1c52f1eaf836",
+    strip_prefix = "rules_go-0.39.1",
+    urls = [
+        "https://github.com/bazelbuild/rules_go/archive/v0.39.1.zip",
+    ],
 )
-load("@io_bazel_rules_sass//:package.bzl", "rules_sass_dependencies")
-rules_sass_dependencies()
 
-load("@io_bazel_rules_sass//sass:sass_repositories.bzl", "sass_repositories")
-sass_repositories()
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
-# Skydoc
-skydoc_version = "b8a32e07ee8297c89ca8020af4fa2163a766706f" # update this as needed
+go_rules_dependencies()
+
+go_register_toolchains(version = "1.20.3")
+
 http_archive(
-    name = "io_bazel_skydoc",
-    sha256 = "694602137e5d56cfd35622cf58c047549324a0db1522ee944ad86e74420be9db",
-    strip_prefix = "skydoc-{}".format(skydoc_version),
-    type = "zip",
-    url = "https://github.com/bazelbuild/skydoc/archive/{}.zip".format(skydoc_version),
-)
-load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
-skydoc_repositories()
-
-# For Skylint
-# Once https://github.com/bazelbuild/bazel/issues/4086 is done, this should be
-# much simpler
-http_archive(
-    name = "io_bazel",
-    sha256 = "2d86797a5b96163b7f5e9cbb8f09cc919066e7ee0fe1a614b79680ae36a14ef3",
-    strip_prefix = "bazel-0.27.0",
-    urls = ["https://github.com/bazelbuild/bazel/archive/0.27.0.zip"],
+    name = "bazel_gazelle",
+    sha256 = "dfd6ee9d6b7aacf042c8d385177ebf459148cffb9d0b5b855aedd03234faafd7",
+    strip_prefix = "bazel-gazelle-0.30.0",
+    urls = [
+        "https://github.com/bazelbuild/bazel-gazelle/archive/v0.30.0.zip",
+    ],
 )
 
-# Also for Skylint. Comes from
-# https://github.com/cgrushko/proto_library/blob/master/WORKSPACE
-protobuf_version = "3.9.0"
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+gazelle_dependencies()
+
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "8eb5ca331ab8ca0da2baea7fc0607d86c46c80845deca57109a5d637ccb93bb4",
-    strip_prefix = "protobuf-{}".format(protobuf_version),
-    type = "zip",
-    url = "https://github.com/protocolbuffers/protobuf/archive/v{}.zip".format(protobuf_version),
+    sha256 = "25680843adf0c3302648d35f744e38cc3b6b05a6c77a927de5aea3e1c2e36106",
+    strip_prefix = "protobuf-3.19.4",
+    urls = [
+        "https://github.com/protocolbuffers/protobuf/archive/v3.19.4.zip",
+    ],
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
 protobuf_deps()
 
-# bazel-common
-bazelcommon_version = "0d4a76d35fe28caf5c887ff39bfd7374b993094b"
+buildtools_version = "4.2.2"
+
 http_archive(
-  name = "bazel-common",
-  sha256 = "00f68b50b535e56daf563899cf6b924737d29127b8f2cb1fbcc473dbe4efad4a",
-  type = "zip",
-  strip_prefix = "bazel-common-{}".format(bazelcommon_version),
-  url = "https://github.com/google/bazel-common/archive/{}.zip".format(bazelcommon_version)
+    name = "com_github_bazelbuild_buildtools",
+    sha256 = "c0b20a3e5fe03d28a31c0ba9d41e3d7c285b150089ff868c8aab91cfa5df4552",
+    strip_prefix = "buildtools-{}".format(buildtools_version),
+    urls = [
+        "https://github.com/bazelbuild/buildtools/archive/{}.zip".format(buildtools_version),
+    ],
+)
+
+load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_dependencies")
+
+buildifier_dependencies()
+
+# bazel-common
+bazelcommon_version = "5a98ecc1193057db05a19c19a5853f95703749c4"
+
+http_archive(
+    name = "bazel-common",
+    sha256 = "22ebc5e9595b9739ac56cf83ed3ab1b2186ca9413f80dfc1326e70dc40b89e1e",
+    strip_prefix = "bazel-common-{}".format(bazelcommon_version),
+    type = "zip",
+    url = "https://github.com/google/bazel-common/archive/{}.zip".format(bazelcommon_version),
 )
 
 load("@bazel-common//:workspace_defs.bzl", "google_common_workspace_rules")
+
 google_common_workspace_rules()
 
-# Make the TRAVIS_TAG available in BUILD files
+# Make COMPILER_CLI_ARTIFACT_ID available in BUILD files
 env_vars_to_bzl_vars_version = "d67a600bb0917cd0e1c7a17ee78a3e2110fdbde2"
+
 http_archive(
-  name = "env_vars_to_bzl_vars",
-  sha256 = "f0f7077a83590ff566c8ef17b74ca02728592f6f400eecb6d3ccef8997a9f41d",
-  type = "zip",
-  strip_prefix ="env_vars_to_bzl_vars-{}".format(env_vars_to_bzl_vars_version),
-  url = "https://github.com/SrodriguezO/env_vars_to_bzl_vars/archive/{}.zip".format(env_vars_to_bzl_vars_version)
+    name = "env_vars_to_bzl_vars",
+    sha256 = "f0f7077a83590ff566c8ef17b74ca02728592f6f400eecb6d3ccef8997a9f41d",
+    strip_prefix = "env_vars_to_bzl_vars-{}".format(env_vars_to_bzl_vars_version),
+    type = "zip",
+    url = "https://github.com/SrodriguezO/env_vars_to_bzl_vars/archive/{}.zip".format(env_vars_to_bzl_vars_version),
 )
 
 load("@env_vars_to_bzl_vars//:env_vars_loader.bzl", "load_env_vars")
+
 load_env_vars(
-  name = "env_vars",
-  env_vars = ["COMPILER_CLI_ARTIFACT_ID", "COMPILER_CLI_VERSION"]
+    name = "env_vars",
+    env_vars = ["COMPILER_CLI_ARTIFACT_ID"],
 )
 
 # rules_twirl (for tests)
-rules_twirl_version = "d2b33b3d4afa25c139912eff5b5f3e27cdc60e0c"
+rules_twirl_version = "299de4ffed6950dac2696098e364e94f67ca0eb5"
+
 http_archive(
-  name = "io_bazel_rules_twirl",
-  sha256 = "135a929891c253a8a3df6ea72cbf3ba0d951dd0586670aaab3c8a56b693984d6",
-  strip_prefix = "rules_twirl-{}".format(rules_twirl_version),
-  type = "zip",
-  url = "https://github.com/lucidsoftware/rules_twirl/archive/{}.zip".format(rules_twirl_version),
+    name = "io_bazel_rules_twirl",
+    sha256 = "84020420828292888d815c887572e76a62b3f82cd2d16ab3f748642b08251002",
+    strip_prefix = "rules_twirl-{}".format(rules_twirl_version),
+    type = "zip",
+    url = "https://github.com/lucidsoftware/rules_twirl/archive/{}.zip".format(rules_twirl_version),
 )
 
 load("@io_bazel_rules_twirl//:workspace.bzl", "twirl_repositories")
+
 twirl_repositories()
+
 load("@twirl//:defs.bzl", twirl_pinned_maven_install = "pinned_maven_install")
+
 twirl_pinned_maven_install()
