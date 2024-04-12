@@ -13,7 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
       - uses: actions/setup-node@v4.0.2
-      - run: npm install -g @bazel/bazelisk
+      - uses: bazel-contrib/setup-bazel@0.8.1
+        with:
+          bazelisk-version: 1.19.0
       - run: cat .bazelrc.ci >> .bazelrc
       - run: ./scripts/format.sh check
       - run: ./test/run_all_tests.sh ci
@@ -25,7 +27,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
       - uses: actions/setup-node@v4.0.2
-      - run: npm install -g @bazel/bazelisk
+      - uses: bazel-contrib/setup-bazel@0.8.1
+        with:
+          bazelisk-version: 1.19.0
       - run: cat .bazelrc.ci >> .bazelrc
       - name: Parse Tag
         run: |
