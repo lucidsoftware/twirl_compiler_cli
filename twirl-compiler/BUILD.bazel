@@ -2,7 +2,7 @@ load("@rules_scala_annex//rules:scala.bzl", "scala_library")
 load("@graknlabs_bazel_distribution//maven:rules.bzl", "assemble_maven", "deploy_maven")
 load("@env_vars//:env_vars.bzl", "COMPILER_CLI_ARTIFACT_ID")
 
-artifact_id = COMPILER_CLI_ARTIFACT_ID if len(COMPILER_CLI_ARTIFACT_ID) > 0 else "twirl_compiler_cli"
+artifact_id = COMPILER_CLI_ARTIFACT_ID if (len(COMPILER_CLI_ARTIFACT_ID) > 0) else "twirl_compiler_cli"
 
 scala_library(
     name = "twirl-compiler-lib",
@@ -13,7 +13,6 @@ scala_library(
         "@rules_scala_annex//src/main/scala/higherkindness/rules_scala/common/worker",
         "@twirl_compiler_cli_maven//:com_github_scopt_scopt_3",
         "@twirl_compiler_cli_maven//:org_playframework_twirl_twirl_compiler_3",
-        "@twirl_compiler_cli_maven//:org_scala_lang_scala3_library_3",
     ],
 )
 
