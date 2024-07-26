@@ -2,6 +2,21 @@ workspace(name = "twirl_compiler_cli")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# rules_java
+http_archive(
+    name = "rules_java",
+    sha256 = "647bb31c0d51882549def6f67ee9078df697043406ed4a5144bbdf3b17f91e33",
+    urls = [
+        "https://github.com/bazelbuild/rules_java/releases/download/7.8.0/rules_java-7.8.0.tar.gz",
+    ],
+)
+
+load("@rules_java//java:repositories.bzl", "rules_java_dependencies")
+
+rules_java_dependencies()
+
+register_toolchains("//:repository_default_toolchain_21_definition")
+
 # rules_jvm_external
 rules_jvm_external_version = "6.0"
 
@@ -44,14 +59,14 @@ load(
 twirl_compiler_cli_test_pinned_maven_install()
 
 # higherkindness/rules_scala
-rules_scala_annex_version = "5df571de1c0803736c8e1846fa7a0faa3e21d6c6"
+rules_scala_annex_version = "c8c4345e3f354753ed4ae7830618467ab59262c6"
 
 http_archive(
     name = "rules_scala_annex",
-    sha256 = "47b700e458de2478428348408b403cccfc93cd2c2b47499275b790d514ad9bd2",
+    integrity = "sha256-pmES8mOOeirB5woNYT2w97+5+C0Bt8ghrj9lHBKkMy8=",
     strip_prefix = "rules_scala-{}".format(rules_scala_annex_version),
     type = "zip",
-    url = "https://github.com/higherkindness/rules_scala/archive/{}.zip".format(rules_scala_annex_version),
+    url = "https://github.com/lucidsoftware/rules_scala/archive/{}.zip".format(rules_scala_annex_version),
 )
 
 bind(
@@ -64,10 +79,6 @@ load(
     "scala_register_toolchains",
     "scala_repositories",
 )
-load(
-    "@rules_scala_annex//rules/scala:workspace_3.bzl",
-    "scala_3_repositories",
-)
 
 scala_repositories()
 
@@ -76,12 +87,6 @@ load("@annex//:defs.bzl", annex_pinned_maven_install = "pinned_maven_install")
 annex_pinned_maven_install()
 
 scala_register_toolchains()
-
-scala_3_repositories()
-
-load("@annex_3//:defs.bzl", annex_3_pinned_maven_install = "pinned_maven_install")
-
-annex_3_pinned_maven_install()
 
 # Skylib
 skylib_version = "1.5.0"  # update this as needed
@@ -162,11 +167,11 @@ load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_depen
 buildifier_dependencies()
 
 # bazel-common
-bazelcommon_version = "5a98ecc1193057db05a19c19a5853f95703749c4"
+bazelcommon_version = "3d605944eb8d238ad8eeecb8cb2021900bfb12ae"
 
 http_archive(
     name = "bazel-common",
-    sha256 = "22ebc5e9595b9739ac56cf83ed3ab1b2186ca9413f80dfc1326e70dc40b89e1e",
+    sha256 = "340197de85263270dd45ab4f9925aa9e3b367abae941208e7bf9a653b31b5b76",
     strip_prefix = "bazel-common-{}".format(bazelcommon_version),
     type = "zip",
     url = "https://github.com/google/bazel-common/archive/{}.zip".format(bazelcommon_version),
