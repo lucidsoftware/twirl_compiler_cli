@@ -11,6 +11,7 @@ scala_library(
     visibility = ["//visibility:public"],
     deps = [
         "@rules_scala_annex//src/main/scala/higherkindness/rules_scala/common/worker",
+        "@rules_scala_annex//src/main/scala/higherkindness/rules_scala/common/error",
         "@twirl_compiler_cli_maven//:com_github_scopt_scopt_3",
         "@twirl_compiler_cli_maven//:org_playframework_twirl_twirl_compiler_3",
     ],

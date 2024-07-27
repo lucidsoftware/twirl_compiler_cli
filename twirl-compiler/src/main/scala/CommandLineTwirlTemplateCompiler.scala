@@ -1,5 +1,6 @@
 package rulestwirl.twirl
 
+import higherkindness.rules_scala.common.error.AnnexWorkerError
 import higherkindness.rules_scala.common.worker.WorkerMain
 import play.twirl.compiler.TwirlCompiler
 import java.io.{File, PrintStream}
@@ -75,7 +76,7 @@ object CommandLineTwirlTemplateCompiler extends WorkerMain[Unit] {
     }
 
     OParser.parse(parser, finalArgs, Config()).map(compileTwirl).getOrElse {
-      System.exit(3)
+      throw new AnnexWorkerError(3)
     }
   }
 
