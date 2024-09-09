@@ -1,48 +1,54 @@
 package rulestwirl.twirl
 
 import higherkindness.rules_scala.common.error.AnnexWorkerError
+import higherkindness.rules_scala.common.sandbox.SandboxUtil
 import higherkindness.rules_scala.common.worker.WorkerMain
 import play.twirl.compiler.TwirlCompiler
 import java.io.{File, PrintStream}
-import java.nio.file.{Files, Paths}
-import scala.collection.JavaConverters._
+import java.nio.file.{Files, Path, Paths}
+import scala.jdk.CollectionConverters._
 import scala.util.boundary, boundary.break
 import scopt.OParser
 
 object CommandLineTwirlTemplateCompiler extends WorkerMain[Unit] {
 
   case class Config(
-    additionalImports: Seq[String] = Seq.empty[String],
-    source: File = new File("."),
-    sourceDirectory: File = new File("."),
-    templateFormats: Map[String, String] = Map.empty[String, String],
-    output: File = new File("."),
+    var additionalImports: List[String] = List.empty[String],
+    var source: Path = Paths.get("."),
+    var sourceDirectory: Path = Paths.get("."),
+    var templateFormats: Map[String, String] = Map.empty[String, String],
+    var output: Path = Paths.get("."),
   )
 
   val builder = OParser.builder[Config]
-  val parser = {
+  def parser(workDir: Path) = {
     import builder._
     OParser.sequence(
       programName("twirl-compiler"),
       head("Twirl Template Compiler", "0.2"),
-      arg[File]("<output>").required().action { (value, config) =>
-        config.copy(output = value)
+      arg[Path]("<output>").required().action { (value, config) =>
+        config.output = SandboxUtil.getSandboxPath(workDir, value)
+        config
       }.text("output file"),
 
-      arg[File]("<sourceDirectory>").required().action { (value, config) =>
-        config.copy(sourceDirectory = value)
+      arg[Path]("<sourceDirectory>").required().action { (value, config) =>
+        config.sourceDirectory = SandboxUtil.getSandboxPath(workDir, value)
+        config
       }.text("root source directory"),
 
-      arg[File]("<source>").unbounded().required().action { (value, config) =>
-        config.copy(source = value)
+      arg[Path]("<source>").unbounded().required().action { (value, config) =>
+        config.source = SandboxUtil.getSandboxPath(workDir, value)
+        config
       }.text("source file"),
 
       opt[String]('i', "additionalImport").valueName("<import>").unbounded().action { (value, config) =>
-        config.copy(additionalImports = config.additionalImports ++ Seq(value))
+        config.additionalImports = config.additionalImports ++ List(value)
+        config
       }.text("additional imports to add to the compiled templates"),
 
       opt[(String, String)]('t', "templateFormat").unbounded().action({ case ((key, value), config) =>
-        config.copy(templateFormats = config.templateFormats + (key -> value))
+        config.templateFormats = config.templateFormats + (key -> value)
+        config
       }).keyValueName("format", "formatterType").text("additional template formats to use when compiling templates"),
     )
   }
@@ -50,12 +56,12 @@ object CommandLineTwirlTemplateCompiler extends WorkerMain[Unit] {
   def compileTwirl(config: Config): Unit = {
     val templateFormats = defaultFormats ++ config.templateFormats
 
-    val extension = config.source.getName.split('.').last
+    val extension = config.source.getFileName().toString().split('.').last
     val formatterType = templateFormats(extension)
     val result = TwirlCompiler.compileVirtual(
-      content = new String(Files.readAllBytes(config.source.toPath)),
-      source = config.source,
-      sourceDirectory = config.sourceDirectory,
+      content = new String(Files.readAllBytes(config.source)),
+      source = config.source.toFile(),
+      sourceDirectory = config.sourceDirectory.toFile(),
       formatterType = formatterType,
       additionalImports = config.additionalImports.map(_.replace("%format%", extension)),
       inclusiveDot = false,
@@ -64,18 +70,18 @@ object CommandLineTwirlTemplateCompiler extends WorkerMain[Unit] {
 
     // TwirlCompiler.compileVirtual generates a footer comment that contains non-reproducible metatdata; remove it
     val sansMetadata = result.content.split("\n").span(s => !s.contains("-- GENERATED --"))._1.dropRight(1).mkString("\n")
-    Files.write(config.output.toPath, sansMetadata.getBytes)
+    Files.write(config.output, sansMetadata.getBytes)
   }
 
   override def init(args: Option[Array[String]]): Unit = ()
 
-  protected def work(ctx: Unit, args: Array[String], out: PrintStream): Unit = {
+  protected def work(ctx: Unit, args: Array[String], out: PrintStream, workDir: Path, verbosity: Int): Unit = {
     val finalArgs = args.toList.flatMap {
       case arg if arg.startsWith("@") => Files.readAllLines(Paths.get(arg.tail)).asScala
       case arg => Array(arg)
     }
 
-    OParser.parse(parser, finalArgs, Config()).map(compileTwirl).getOrElse {
+    OParser.parse(parser(workDir), finalArgs, Config()).map(compileTwirl).getOrElse {
       throw new AnnexWorkerError(3)
     }
   }
