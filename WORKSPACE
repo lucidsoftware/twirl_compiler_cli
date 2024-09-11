@@ -5,9 +5,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # rules_java
 http_archive(
     name = "rules_java",
-    sha256 = "647bb31c0d51882549def6f67ee9078df697043406ed4a5144bbdf3b17f91e33",
+    sha256 = "41131de4417de70b9597e6ebd515168ed0ba843a325dc54a81b92d7af9a7b3ea",
     urls = [
-        "https://github.com/bazelbuild/rules_java/releases/download/7.8.0/rules_java-7.8.0.tar.gz",
+        "https://github.com/bazelbuild/rules_java/releases/download/7.9.0/rules_java-7.9.0.tar.gz",
     ],
 )
 
@@ -59,11 +59,11 @@ load(
 twirl_compiler_cli_test_pinned_maven_install()
 
 # higherkindness/rules_scala
-rules_scala_annex_version = "c8c4345e3f354753ed4ae7830618467ab59262c6"
+rules_scala_annex_version = "f23c16037db66efb541dbbf5e17e6604886c85ff"
 
 http_archive(
     name = "rules_scala_annex",
-    integrity = "sha256-pmES8mOOeirB5woNYT2w97+5+C0Bt8ghrj9lHBKkMy8=",
+    integrity = "sha256-b/cPeh6J1Mq63u6fSWdEHAKL/kWfPhZcNL7m9If7PWM=",
     strip_prefix = "rules_scala-{}".format(rules_scala_annex_version),
     type = "zip",
     url = "https://github.com/lucidsoftware/rules_scala/archive/{}.zip".format(rules_scala_annex_version),
@@ -200,17 +200,17 @@ load_env_vars(
 )
 
 # rules_twirl (for tests)
-rules_twirl_version = "299de4ffed6950dac2696098e364e94f67ca0eb5"
+rules_twirl_version = "bc5652a7fd003cf6c45951c6e375c96b76c6e3ef"
 
 http_archive(
-    name = "io_bazel_rules_twirl",
-    sha256 = "84020420828292888d815c887572e76a62b3f82cd2d16ab3f748642b08251002",
+    name = "rules_twirl",
+    sha256 = "035c0599a0a5390452811ee4845e2907ac146e47d7dc47188cbe13446e8d5ba1",
     strip_prefix = "rules_twirl-{}".format(rules_twirl_version),
     type = "zip",
     url = "https://github.com/lucidsoftware/rules_twirl/archive/{}.zip".format(rules_twirl_version),
 )
 
-load("@io_bazel_rules_twirl//:workspace.bzl", "twirl_repositories")
+load("@rules_twirl//:workspace.bzl", "twirl_repositories")
 
 twirl_repositories()
 
